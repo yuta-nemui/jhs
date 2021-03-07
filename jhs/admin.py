@@ -7,7 +7,7 @@ from jhs.models import Company
 
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'interest_level',
-                    'system', 'entered')  # 一覧に出したい項目
+                    'system', 'entered', 'entry_sheet')  # 一覧に出したい項目
     list_display_links = ('id', 'name',)  # 修正リンクでクリックできる項目
 
 

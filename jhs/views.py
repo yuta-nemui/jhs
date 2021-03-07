@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from jhs.models import Company
 from jhs.forms import CompanyForm
 from django.db.models import Q
+from jhs.models import CHOICES
 
 # Create your views here.
 
@@ -13,22 +14,34 @@ def company_list(request):
     form_name = request.GET.get('name')
     form_entered = bool(request.GET.get('entered'))
     form_not_entry = bool(request.GET.get('not_entry'))
+    form_es = bool(request.GET.get('es'))
+    form_not_es = bool(request.GET.get('not_es'))
     form_system = request.GET.get('system')
+    form_order = request.GET.get('order')
+    form_welfare_benefits = request.GET.get('welfare_benefits')
+    if form_order is None:
+        form_order = 'id'
+    print(form_order)
+    companies = Company.objects
     if form_name:
-        companies = Company.objects.filter(
-            Q(name__icontains=form_name) | Q(interest_level__icontains=form_name))
-    else:
-        companies = Company.objects.all().order_by('id')
+        companies = companies.filter(
+            Q(name__icontains=form_name))
+    if form_welfare_benefits:
+        companies = companies.filter(
+            Q(welfare_benefits__icontains=form_welfare_benefits))
     if form_system is not None:
         companies = companies.filter(
             Q(system=form_system)
         )
     companies = companies.filter(
         Q(entered=form_entered) | Q(entered=not form_not_entry))
-    # companies = companies.order_by('entered')
+    companies = companies.filter(
+        Q(entry_sheet=form_es) | Q(entry_sheet=not form_not_es))
+    # urlから書き換えれば好きに並べ替えできるじゃん。他のも条件絞り込みも出来たし…
+    companies = companies.order_by(form_order)
     return render(request,
                   'jhs/company_list.html',     # 使用するテンプレート
-                  {'companies': companies, "systems": Company.CHOICE})         # テンプレートに渡すデータ
+                  {'companies': companies, "systems": CHOICES})         # テンプレートに渡すデータ
 
 
 def company_edit(request, company_id=None):
